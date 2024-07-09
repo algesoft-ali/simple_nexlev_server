@@ -1,6 +1,13 @@
-import { Controller, Get, HttpException, Post, Req } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Post,
+} from "@nestjs/common";
+import { LoginUserDTO, RegisterUserDTO } from "./user.dto";
 import { UserService } from "./user.service";
-import { Request } from "express";
 
 @Controller("user")
 export class UserController {
@@ -8,9 +15,9 @@ export class UserController {
 
   // ------ Register User
   @Post("register")
-  async registerUser(@Req() req: Request) {
+  async registerUser(@Body() inputData: RegisterUserDTO) {
     try {
-      const data = await this.userService.registerUser(req.body);
+      const data = await this.userService.registerUser(inputData);
 
       return {
         success: true,
@@ -18,10 +25,33 @@ export class UserController {
         data,
       };
     } catch (error) {
-      throw new HttpException(error, 500);
+      throw new HttpException(
+        error.message || "Internal Server Error",
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+        { cause: error }
+      );
     }
   }
   // ------ Login User
+  @Post("login")
+  async loginUser(@Body() inputData: LoginUserDTO) {
+    try {
+      const data = await this.userService.loginUser(inputData);
+      return {
+        success: true,
+        message: "User Logged In Successfully",
+        data,
+      };
+    } catch (error) {
+      throw new HttpException(
+        error.message || "Internal Server Error",
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+        {
+          cause: error,
+        }
+      );
+    }
+  }
 
   // ------ Get All User
   @Get()
@@ -34,7 +64,11 @@ export class UserController {
         data,
       };
     } catch (error) {
-      throw new HttpException(error, 500);
+      throw new HttpException(
+        error.message || "Internal Server Error",
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+        { cause: error }
+      );
     }
   }
   // ------ Get One User
