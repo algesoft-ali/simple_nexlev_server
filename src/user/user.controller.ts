@@ -2,12 +2,15 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   HttpException,
   HttpStatus,
   Post,
+  UseGuards,
 } from "@nestjs/common";
 import { LoginUserDTO, RegisterUserDTO } from "./user.dto";
 import { UserService } from "./user.service";
+import { AdminGuard } from "src/middleware/admin.guard";
 
 @Controller("user")
 export class UserController {
@@ -34,6 +37,7 @@ export class UserController {
   }
   // ------ Login User
   @Post("login")
+  @HttpCode(HttpStatus.OK)
   async loginUser(@Body() inputData: LoginUserDTO) {
     try {
       const data = await this.userService.loginUser(inputData);
@@ -55,6 +59,7 @@ export class UserController {
 
   // ------ Get All User
   @Get()
+  @UseGuards(AdminGuard)
   async getAllUser() {
     try {
       const data = await this.userService.getAllUser();
