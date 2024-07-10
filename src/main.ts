@@ -7,6 +7,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // ----- Middlewares
+  app.enableCors();
   app.useGlobalPipes(new ValidationPipe());
 
   // ----- Error handlers
