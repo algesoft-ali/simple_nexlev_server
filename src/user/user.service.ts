@@ -115,10 +115,10 @@ export class UserService {
     });
   }
 
-  async googleLogin(req) {
+  async googleLogin(req): Promise<IUserResponse> {
     let user = null;
     if (!req.user) {
-      return "No user from google";
+      return null;
     }
 
     user = await this.prisma.user.findUnique({

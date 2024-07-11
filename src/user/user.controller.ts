@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Post,
   Req,
+  Res,
   UseGuards,
 } from "@nestjs/common";
 import { LoginUserDTO, RegisterUserDTO } from "./user.dto";
@@ -14,7 +15,7 @@ import { UserService } from "./user.service";
 import { AdminGuard } from "src/middleware/admin.guard";
 import { AuthGuard } from "src/middleware/auth.guard";
 import { AuthGuard as AuthGuardPassport } from "@nestjs/passport";
-import { Request } from "express";
+import { Request, Response } from "express";
 
 @Controller("user")
 export class UserController {
@@ -109,9 +110,10 @@ export class UserController {
 
   @Get("google/callback")
   @UseGuards(AuthGuardPassport("google"))
-  googleAuthRedirect(@Req() req: Request) {
-    const result = this.userService.googleLogin(req);
+  async googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
+    const { accessToken } = await this.userService.googleLogin(req);
 
-    return result;
+    const redirectUrl = `${process.env.CLIENT_URL}/google?accessToken=${accessToken}`;
+    res.redirect(redirectUrl);
   }
 }
