@@ -111,9 +111,14 @@ export class UserController {
   @Get("google/callback")
   @UseGuards(AuthGuardPassport("google"))
   async googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
-    const { accessToken } = await this.userService.googleLogin(req);
+    try {
+      const { accessToken } = await this.userService.googleLogin(req);
 
-    const redirectUrl = `${process.env.CLIENT_URL}/google?accessToken=${accessToken}`;
-    res.redirect(redirectUrl);
+      const redirectUrl = `${process.env.CLIENT_URL}/google?accessToken=${accessToken}`;
+      res.redirect(redirectUrl);
+    } catch (error) {
+      console.log(error);
+      res.redirect(process.env.CLIENT_URL);
+    }
   }
 }
