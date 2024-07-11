@@ -27,6 +27,7 @@ export class UserService {
         role: true,
         email: true,
         password: false,
+        googleId: true,
         address: true,
         createdAt: true,
         updatedAt: true,
@@ -87,6 +88,7 @@ export class UserService {
         role: true,
         email: true,
         password: false,
+        googleId: true,
         address: true,
         createdAt: true,
         updatedAt: true,
@@ -105,10 +107,54 @@ export class UserService {
         role: true,
         email: true,
         password: false,
+        googleId: true,
         address: true,
         createdAt: true,
         updatedAt: true,
       },
     });
+  }
+
+  async googleLogin(req) {
+    let user = null;
+    if (!req.user) {
+      return "No user from google";
+    }
+
+    user = await this.prisma.user.findUnique({
+      where: {
+        email: req?.user?.email,
+      },
+    });
+
+    if (!user) {
+      // ------ create new user
+      const data = {
+        name: req?.user?.name,
+        email: req?.user?.email,
+        googleId: req?.user?.googleId,
+        role: "user",
+      } as Prisma.UserCreateInput;
+      user = await this.prisma.user.create({
+        data,
+      });
+    }
+
+    // ------ generate access token
+    const accessToken = this.jwtService.sign(
+      {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+      },
+      {
+        expiresIn: "1d",
+      }
+    );
+
+    return {
+      accessToken,
+      user,
+    };
   }
 }

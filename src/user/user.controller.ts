@@ -13,6 +13,7 @@ import { LoginUserDTO, RegisterUserDTO } from "./user.dto";
 import { UserService } from "./user.service";
 import { AdminGuard } from "src/middleware/admin.guard";
 import { AuthGuard } from "src/middleware/auth.guard";
+import { AuthGuard as AuthGuardPassport } from "@nestjs/passport";
 import { Request } from "express";
 
 @Controller("user")
@@ -99,5 +100,18 @@ export class UserController {
         { cause: error }
       );
     }
+  }
+
+  // ------ Google Login
+  @Get("google")
+  @UseGuards(AuthGuardPassport("google"))
+  async googleAuth(@Req() req) {}
+
+  @Get("google/callback")
+  @UseGuards(AuthGuardPassport("google"))
+  googleAuthRedirect(@Req() req: Request) {
+    const result = this.userService.googleLogin(req);
+
+    return result;
   }
 }
