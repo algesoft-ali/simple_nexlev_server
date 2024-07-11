@@ -6,11 +6,14 @@ import {
   HttpException,
   HttpStatus,
   Post,
+  Req,
   UseGuards,
 } from "@nestjs/common";
 import { LoginUserDTO, RegisterUserDTO } from "./user.dto";
 import { UserService } from "./user.service";
 import { AdminGuard } from "src/middleware/admin.guard";
+import { AuthGuard } from "src/middleware/auth.guard";
+import { Request } from "express";
 
 @Controller("user")
 export class UserController {
@@ -76,5 +79,25 @@ export class UserController {
       );
     }
   }
-  // ------ Get One User
+  // ------ Get Single User
+  @Get("me")
+  @UseGuards(AuthGuard)
+  async getSingleUser(@Req() req: Request) {
+    try {
+      const userId = req["user"]["id"];
+
+      const data = await this.userService.getSingleUser(userId);
+      return {
+        success: true,
+        message: "User retrieved Successfully",
+        data,
+      };
+    } catch (error) {
+      throw new HttpException(
+        error.message || "Internal Server Error",
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+        { cause: error }
+      );
+    }
+  }
 }

@@ -93,4 +93,22 @@ export class UserService {
       },
     });
   }
+
+  async getSingleUser(id: number): Promise<Omit<User, "password">> {
+    return this.prisma.user.findUnique({
+      where: {
+        id,
+      },
+      select: {
+        id: true,
+        name: true,
+        role: true,
+        email: true,
+        password: false,
+        address: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+  }
 }
