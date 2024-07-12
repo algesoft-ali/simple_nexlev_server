@@ -70,7 +70,7 @@ export class UserService {
       throw new HttpException("User not found", HttpStatus.NOT_FOUND);
     }
 
-    if (!user.password || !user.googleId) {
+    if (!user.password || user.googleId) {
       throw new HttpException(
         "User linked with Social Media",
         HttpStatus.UNAUTHORIZED
