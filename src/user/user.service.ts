@@ -13,6 +13,16 @@ export class UserService {
   ) {}
 
   async registerUser(data: Prisma.UserCreateInput): Promise<IUserResponse> {
+    const existingUser = await this.prisma.user.findUnique({
+      where: {
+        email: data.email,
+      },
+    });
+
+    if (existingUser) {
+      throw new HttpException("User already exists", HttpStatus.CONFLICT);
+    }
+
     const inputtedPassword = data?.password;
     // ------ hash the password using bcrypt
     const salt = bcrypt.genSaltSync(10);
@@ -58,6 +68,13 @@ export class UserService {
 
     if (!user) {
       throw new HttpException("User not found", HttpStatus.NOT_FOUND);
+    }
+
+    if (!user.password || !user.googleId) {
+      throw new HttpException(
+        "User linked with Social Media",
+        HttpStatus.UNAUTHORIZED
+      );
     }
 
     const isPasswordValid = await bcrypt.compare(input.password, user.password);
